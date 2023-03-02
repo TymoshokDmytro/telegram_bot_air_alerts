@@ -8,7 +8,7 @@ build:
 .PHONY: run
 run:
 	docker container rm -f $(CONTAINER_NAME) > /dev/null 2>&1
-	docker run -i --rm --name $(CONTAINER_NAME) --env-file .env-docker $(APP_IMAGE)
+	docker run -i --rm --name $(CONTAINER_NAME) --env-file .env-docker -p 8000:8000 $(APP_IMAGE)
 
 .PHONY: rm-container
 rm-container:

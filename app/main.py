@@ -2,12 +2,15 @@
 import os
 import sys
 import time
+from threading import Thread
 
 import telebot
+import uvicorn
 from loguru import logger as log
 from dotenv import load_dotenv
 
 from app.alerts_api_service import AlertsAPIService
+from app.healthcheck_server import app
 
 
 def add_workdir_path(abs_file_path):
@@ -34,6 +37,17 @@ def start(message):
 
 
 if __name__ == '__main__':
+    http_server_params = {
+        "http": "h11",
+        "loop": "uvloop",
+        "port": 8000,
+        "host": "0.0.0.0",
+    }
+    app.state.status = True
+    http_server_thread = Thread(target=uvicorn.run, daemon=True, args=(app,), kwargs=http_server_params)
+    http_server_thread.start()
+    log.debug("Healthcheck server started on endpoint /health and 8000 port.")
+
     alerts_api = AlertsAPIService(api_key=os.environ["ALERTS_API_KEY"])
     log.info(f"TelegramAirAlarmBot application started. POLLING_PERIOD_SEC={os.getenv('POLLING_PERIOD_SEC')}")
     api_result = alerts_api.check_state_request(state_number=STATE_NUMBER)

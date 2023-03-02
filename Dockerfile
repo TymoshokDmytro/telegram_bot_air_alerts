@@ -14,6 +14,6 @@ ENV PATH="/opt/venv/bin:$PATH"
 COPY app /app_workdir/app
 WORKDIR /app_workdir
 
-EXPOSE 80
+EXPOSE 8000
 
 CMD ["python", "-m", "app.main"]
