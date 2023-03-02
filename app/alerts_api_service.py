@@ -27,17 +27,17 @@ class AlertsAPIService(BaseAlertsAPIService):
             log.error(f"Incorrect state_number type: {type(state_number)} value={state_number}")
             return
         try:
-            alert_status = random.choice((True, False))
-            log.debug(f"Retrieved alert status: {alert_status}")
-            return alert_status
+            # alert_status = random.choice((True, False))
+            # log.debug(f"Retrieved alert status: {alert_status}")
+            # return alert_status
 
-            # resp = requests.get(f"{self.base_url}/api/states/{state_number}", headers={"X-API-Key": self._api_key}, timeout=30)
-            # if resp.status_code == 200:
-            #     alert_status = resp.json()["state"]["alert"]
-            #     log.debug(f"Retrieved alert status: {alert_status}")
-            #     return alert_status
-            # else:
-            #     log.error(f"Got state status response with status_code={resp.status_code} | content={resp.content}")
+            resp = requests.get(f"{self.base_url}/api/states/{state_number}", headers={"X-API-Key": self._api_key}, timeout=30)
+            if resp.status_code == 200:
+                alert_status = resp.json()["state"]["alert"]
+                log.debug(f"Retrieved alert status: {alert_status}")
+                return alert_status
+            else:
+                log.error(f"Got state status response with status_code={resp.status_code} | content={resp.content}")
 
         except Exception as e:
             log.error(f"State status request failed with error: {type(e)} {str(e)}")
