@@ -9,16 +9,16 @@ from dotenv import load_dotenv
 
 from app.alerts_api_service import AlertsAPIService
 
-load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
-bot = telebot.TeleBot(os.environ["BOT_TOKEN"])
-CHAT_ID = int(os.getenv("CHAT_ID", 240650925))
-POLLING_PERIOD_SEC = int(os.getenv("POLLING_PERIOD_SEC", 10))
-STATE_NUMBER = int(os.getenv("STATE_NUMBER", 25))
-
 
 def add_workdir_path(abs_file_path):
     return os.path.join(os.path.dirname(__file__), abs_file_path)
 
+
+load_dotenv(add_workdir_path(".env"))
+bot = telebot.TeleBot(os.environ["BOT_TOKEN"])
+CHAT_ID = int(os.getenv("CHAT_ID", 240650925))
+POLLING_PERIOD_SEC = int(os.getenv("POLLING_PERIOD_SEC", 10))
+STATE_NUMBER = int(os.getenv("STATE_NUMBER", 25))
 
 log.remove()
 os.makedirs(add_workdir_path("logs"), exist_ok=True)
@@ -29,14 +29,13 @@ log.add(add_workdir_path("logs/log"), format=log_format, rotation="00:00", reten
 
 @bot.message_handler(commands=['start'])
 def start(message):
+    log.debug(f"Received /start from chat.id={message.chat.id}")
     bot.send_message(message.from_user.id, "Йобана русня 🤬")
 
 
-# bot.send_message(-760220586, f"Йобана русня 🤬")
-
 if __name__ == '__main__':
     alerts_api = AlertsAPIService(api_key=os.environ["ALERTS_API_KEY"])
-
+    log.info(f"TelegramAirAlarmBot application started. POLLING_PERIOD_SEC={os.getenv('POLLING_PERIOD_SEC')}")
     api_result = alerts_api.check_state_request(state_number=STATE_NUMBER)
     if not isinstance(api_result, bool):
         log.error(f"Got None from check_state. Aborting.")
@@ -68,7 +67,6 @@ if __name__ == '__main__':
                         log.error(f"While sending bot message exception happened: {type(e)} {str(e)}")
                     current_state_status = api_result
             time.sleep(POLLING_PERIOD_SEC)
-    except KeyboardInterrupt:
-        bot.stop_bot()
     finally:
+        log.info("TelegramAirAlarmBot application stopped")
         bot.stop_bot()
