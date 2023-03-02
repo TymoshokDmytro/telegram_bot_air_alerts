@@ -15,6 +15,5 @@ COPY app /app_workdir/app
 WORKDIR /app_workdir
 
 EXPOSE 80
-EXPOSE 443
 
 CMD ["python", "-m", "app.main"]
