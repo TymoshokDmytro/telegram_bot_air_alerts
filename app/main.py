@@ -49,7 +49,8 @@ if __name__ == '__main__':
     log.debug("Healthcheck server started on endpoint /health and 8000 port.")
 
     alerts_api = AlertsAPIService(api_key=os.environ["ALERTS_API_KEY"])
-    log.info(f"TelegramAirAlarmBot application started. POLLING_PERIOD_SEC={os.getenv('POLLING_PERIOD_SEC')}")
+    log.info(f"TelegramAirAlarmBot application started. CHAT_ID={CHAT_ID} | "
+             f"POLLING_PERIOD_SEC={POLLING_PERIOD_SEC}")
     api_result = alerts_api.check_state_request(state_number=STATE_NUMBER)
     if not isinstance(api_result, bool):
         log.error(f"Got None from check_state. Aborting.")
