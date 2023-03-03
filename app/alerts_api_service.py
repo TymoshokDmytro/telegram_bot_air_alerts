@@ -1,10 +1,10 @@
 import asyncio
 import os
-import random
-
-from aiohttp_sse_client import client as sse_client
 
 import requests
+import telebot
+import uvloop
+from aiosseclient import aiosseclient
 from dotenv import load_dotenv
 from loguru import logger as log
 
@@ -48,27 +48,29 @@ class AlertsAPIService(BaseAlertsAPIService):
 class AlertsSSEService(BaseAlertsAPIService):
     """ This uses the sse event stream from https://alerts.com.ua/ """
 
-    async def _async_sse_processing(self, state_number):
+    async def _async_sse_processing(self, bot: telebot.TeleBot, chat_id: int, state_number):
         events_list = list()
         while True:
-            async with sse_client.EventSource(
-                    url=f"{self.base_url}/api/states/live/{state_number}",
-                    headers={"X-API-Key": self._api_key}
-            ) as event_source:
-                try:
-                    async for event in event_source:
-                        if event.type != "ping":
-                            log.info(f"Received event: type={event.type} | data_type={type(event.data)} | data={event.data}")
-                            events_list.append(event)
-                            serialize_magic(events_list, "events.pkl")
-                except (ConnectionError, asyncio.exceptions.TimeoutError) as e:
-                    log.error(f"Asyncio connection error: {type(e)} {str(e)}. Reconnecting")
+            try:
+                async for event in aiosseclient(
+                        url=f"{self.base_url}/api/states/live/{state_number}",
+                        headers={"X-API-Key": self._api_key}
+                ):
+                    log.info(f"Received event: type={event.event} | data_type={type(event.data)} | data={event.data}"),
+                    if event.event != "ping":
+                        # TODO Here to send message on update event with telegram bot to the chat_id depending on alarm status
+                        events_list.append(event)
+                        serialize_magic(events_list, "events.pkl")
+            except (ConnectionError, asyncio.exceptions.TimeoutError) as e:
+                log.error(f"Asyncio connection error: {type(e)} {str(e)}. Reconnecting")
 
-    def process_sse_events(self, state_number: int = 25):
+    def process_sse_events(self, bot: telebot.TeleBot, chat_id: int, state_number: int = 25):
+        uvloop.install()
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(self._async_sse_processing(state_number))
+        loop.run_until_complete(self._async_sse_processing(bot=bot, chat_id=chat_id, state_number=state_number))
 
-# if __name__ == '__main__':
-#     load_dotenv("app/.env")
-#     api_service = AlertsSSEService(api_key=os.getenv("ALERTS_API_KEY"))
-#     api_service.process_sse_events()
+
+if __name__ == '__main__':
+    load_dotenv("app/.env")
+    api_service = AlertsSSEService(api_key=os.getenv("ALERTS_API_KEY"))
+    api_service.process_sse_events()

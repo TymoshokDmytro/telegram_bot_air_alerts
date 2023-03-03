@@ -1,7 +1,7 @@
 pytelegrambotapi==4.10.0
 python-dotenv==1.0.0
 loguru==0.6.0
-aiohttp-sse-client==0.2.1
+aiosseclient==0.0.1
 starlette==0.25.0
 uvicorn==0.20.0
 uvloop==0.17.0
