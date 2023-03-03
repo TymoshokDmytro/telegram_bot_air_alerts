@@ -3,7 +3,7 @@ __pycache__
 venv/
 .env
 .env-docker
-events.pkl
+events*.pkl
 
 # logging
 app/logs/
