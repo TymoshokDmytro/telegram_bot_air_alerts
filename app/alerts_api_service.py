@@ -77,7 +77,7 @@ class AlertsSSEService(BaseAlertsAPIService):
         loop = asyncio.get_event_loop()
         loop.run_until_complete(self._async_sse_processing(bot=bot, chat_id=chat_id, state_number=state_number))
 
-
+#
 # if __name__ == '__main__':
 #     load_dotenv("app/.env")
 #     bot = telebot.TeleBot(os.environ["BOT_TOKEN"])
