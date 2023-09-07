@@ -19,7 +19,7 @@ async def health_check(request: Request) -> Response:
 
 
 routes = [
-    Route("/health", endpoint=health_check)
+    Route("/health", endpoint=health_check, methods=["GET", "OPTIONS"])
 ]
 
 app = Starlette(debug=False, routes=routes)
