@@ -8,8 +8,8 @@ from threading import Thread
 import requests
 import telebot
 import uvicorn
-from loguru import logger as log
 from dotenv import load_dotenv
+from loguru import logger as log
 
 from app.alerts_api_service import AlertsAPIService
 from app.healthcheck_server import app
